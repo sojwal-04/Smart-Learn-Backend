@@ -26,7 +26,7 @@ async function sendVerificationEmail(email, otp) {
   try {
     let emailBody = `Hello,
 
-    You are receiving this email from SmartLearn to verify your account. Please use the following one-time password (OTP) to complete the verification process:
+    You are receiving this email from SmartLearn to verify your account. Please use the following one-time password (OTP) to complete the verification process (valid for next 5 minutes):
 
     OTP: ${otp}
 
@@ -56,6 +56,6 @@ OTPSchema.pre("save", async function (next) {
   } catch (err) {
     next(err);
   }
-});  
+});
 
 module.exports = mongoose.model("OTP", OTPSchema);
