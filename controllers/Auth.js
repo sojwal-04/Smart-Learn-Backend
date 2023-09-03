@@ -2,9 +2,11 @@ const User = require("../models/User.js");
 const OTP = require("../models/OTP.js");
 const otpGenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
+require("dotenv").config();
+
+const secretKey = process.env.JWT_SECRET_KEY;
 
 //Send OTP
-
 exports.sendOTP = async (req, res) => {
   try {
     //Fetch email from request's body
@@ -163,5 +165,72 @@ exports.signUp = async (req, res) => {
 };
 
 //Login
+
+exports.login = async (req, res) => {
+  try {
+    //Fetch data from user
+    const { email, password } = req.body;
+
+    //Validate data
+    if (!password || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    //Does user exist?
+
+    const user = await User.findOne({ email }).populate("additionalDetails");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User does not exist. Sign up first",
+      });
+    }
+
+    //Generate JWT, after password matching
+
+    if (await bcrypt.compare(password, user.password)) {
+      const payload = {
+        email: user.email,
+        id: user._id,
+        role: user.role,
+      };
+
+      const token = jwt.sign(payload, secretKey, {
+        expiresIn: "2h",
+      });
+
+      user.token = token;
+      user.password = undefined;
+
+      //Creating cookie and send response
+      const options = {
+        expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+      };
+
+      res.cookie("token", token, options).status(200).json({
+        success: true,
+        token,
+        user,
+        message: "User logged in successfully",
+      });
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: "Incorrect password",
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while logging in. Try again",
+    });
+  }
+};
 
 //Change Password

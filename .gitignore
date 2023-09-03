@@ -4,6 +4,6 @@ node_modules/
 # Ignore the actual .env file with sensitive data
 .env
 
-# Include sample or example files for environment variables
-.env.example
-.env.sample
+# # Include sample or example files for environment variables
+# .env.example
+# .env.sample
