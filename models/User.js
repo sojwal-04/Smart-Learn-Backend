@@ -43,6 +43,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: DefaultAvatar,
   },
+  token: {
+    type: String,
+    unique: true,
+  },
+  resetPasswordExpires: {
+    type: Date,
+  },
   courseProgress: [
     {
       type: mongoose.Schema.Types.ObjectId,
